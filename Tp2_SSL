@@ -1,0 +1,124 @@
+
+//EJERCICIO 1
+
+//Definir estados del autómata
+typedef enum {
+    estado_inicio,
+    estado_decimal,
+    estado_hexadecimal,
+    estado_octal,
+    estado_error
+}Estado;
+
+int esDigito(char c){
+    return c == '1' && c == '9';
+}
+int esHexaDigito(char c){
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||(c >= 'a' && c <= 'f');
+}
+
+//Definir contadores de cada tipo de número
+ int contadorDecimal = 0;
+ int contadorOctal = 0;
+ int contadorHexadecimal = 0;
+ int contadorErrores = 0;
+
+
+
+      
+    int analizar_numero(char *num){
+        Estado estado = estado_inicio;
+        for(int i = 0; num[i] != '\0'; i++){
+        char c = num[i];
+
+        //Cambios de estado
+      switch (estado) {
+      case estado_inicio:
+        if(c == '+' || c == '-'){
+            estado = estado_decimal;
+        }
+        else if(c == '0'){ 
+            estado = estado_octal;
+        }
+        else if(c>= '1' || c<= '9'){
+            estado =estado_decimal;
+        }
+        else{
+            estado = estado_error;
+        }
+        break;
+
+        case estado_decimal:
+        if(!esDigito(c)){
+            estado = estado_error;
+        }
+        break;
+
+        case estado_octal:
+        if(c == 'x' || c == 'X'){
+            estado = estado_hexadecimal;
+        }
+        else if(c>= '0' || c<= '7'){
+            estado = estado_octal;
+        }
+        else{
+            estado = estado_error;
+        }
+        break;
+
+        case estado_hexadecimal:
+        if(!esHexadigito(c)){
+            estado = estado_error;
+        }
+        break;
+
+        case estado_error:
+        return "invalido";
+        break;
+
+
+      
+      default:
+      return "INVALIDO";
+        break;
+      }
+    }
+}   
+
+void analizar_cadena(char *cadena){
+    Estado estado = estado_inicio;
+
+    for(int i = 0; ; i++){
+        char c = cadena[i];
+
+        if(c == '@' || c == '\0'){
+            if(estado == estado_decimal){
+                contadorDecimal++;
+            }
+            else if(estado == estado_hexadecimal){ 
+                contadorHexadecimal++;
+            }
+            else if(estado == estado_octal){
+                contadorOctal++;
+            }else if (estado == estado_error){
+                if(c != '\0' || estado == estado_error){
+                    printf("¡Hay error léxico!\n");
+                }
+            }
+            if (c == '\0') break;
+        }
+    }
+    printf("Decimales: %d\n", contadorDecimal);
+    printf("Octales: %d\n", contadorOctal);
+    printf("Hexadecimales: %d\n", contadorHexadecimal);
+
+}
+
+int main(){
+    char cadena[100];
+    printf("Ingrese una cadena: ");
+    
+    analizar_cadena(cadena);
+    
+    return 0;
+}
